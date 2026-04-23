@@ -1,7 +1,7 @@
 {
     "$schema": "./@types/schema/package/index.json",
     "package_version": 2,
-    "name": "vue3-template-cc",
+    "name": "scene-health-check",
     "version": "1.0.0",
     "author": "Cocos Creator",
     "editor": ">=3.8.7",
@@ -9,7 +9,7 @@
         "preinstall": "node ./scripts/preinstall.js",
         "build": "npx tsc"
     },
-    "description": "i18n:vue3-template-cc.description",
+    "description": "i18n:scene-health-check.description",
     "main": "./dist/main.js",
     "dependencies": {
         "vue": "^3.1.4",
@@ -40,13 +40,13 @@
         },
         "menu": [
             {
-                "path": "i18n:menu.panel/vue3-template-cc",
-                "label": "i18n:vue3-template-cc.open_panel",
+                "path": "i18n:menu.panel/scene-health-check",
+                "label": "i18n:scene-health-check.open_panel",
                 "message": "open-panel"
             },
             {
-                "path": "i18n:menu.develop/vue3-template-cc",
-                "label": "i18n:vue3-template-cc.send_to_panel",
+                "path": "i18n:menu.develop/scene-health-check",
+                "label": "i18n:scene-health-check.send_to_panel",
                 "message": "send-to-panel"
             }
         ],

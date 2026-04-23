@@ -65,7 +65,7 @@ module.exports = Editor.Panel.define({
                             this.isScanning = true;
                             try {
                                 const result = await Editor.Message.request('scene', 'execute-scene-script', {
-                                    name: 'vue3-template-cc',
+                                    name: 'scene-health-check',
                                     method: 'scanScene',
                                     args: [],
                                 });
