@@ -31,7 +31,11 @@
     - **Texture**: 透過 `sprite.spriteFrame.texture` 獲取尺寸，檢查是否超過 2048。
     - **Empty Sprite**: 檢查 `cc.Sprite` 元件是否存在且其 `spriteFrame` 為 null。
     - **System Font**: 檢查 `cc.Label` 的 `useSystemFont` 屬性。
-    - **Draw Call**: 統計場景中 `activeInHierarchy` 為 true 且帶有 `cc.Renderable2D` 或 `cc.MeshRenderer` 的節點總數。
+    - **Draw Call**: 模擬渲染順序（DFS）的合批預估。
+        - 追蹤連續節點的 **材質 (Material)** 與 **貼圖 (Texture)** UUID。
+        - 若連續 2D 渲染節點具備相同材質與貼圖，則視為同一個 Draw Call。
+        - `cc.Label` (系統字體) 與 3D `MeshRenderer` 預設視為打斷合批的獨立渲染。
+        - **過濾機制**: 自動跳過 `Editor Scene Foreground` 與 `Editor Scene Background` 下的所有輔助節點。
 
 ## 4. 通訊與互動流程
 

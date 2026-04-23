@@ -9,7 +9,7 @@
         "preinstall": "node ./scripts/preinstall.js",
         "build": "npx tsc"
     },
-    "description": "i18n:scene-health-check.description",
+    "description": "Scene resource health check tool for Cocos Creator 3.x",
     "main": "./dist/main.js",
     "dependencies": {
         "vue": "^3.1.4",
@@ -41,7 +41,7 @@
         "menu": [
             {
                 "path": "Tools-dev",
-                "label": "i18n:scene-health-check.open_panel",
+                "label": "Scene Health Check",
                 "message": "open-panel"
             }
         ],
@@ -49,11 +49,6 @@
             "open-panel": {
                 "methods": [
                     "openPanel"
-                ]
-            },
-            "send-to-panel": {
-                "methods": [
-                    "default.hello"
                 ]
             }
         }

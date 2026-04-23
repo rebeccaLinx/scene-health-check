@@ -1,43 +1,42 @@
-# Cocos Creator 場景資源健康度檢查工具
+# Scene Health Check
 
-本插件為 Cocos Creator 3.8.x 開發，旨在協助美術與開發團隊自動化檢查場景中的隱性資源問題，確保提交前的資源規範。
+![UI Preview](./ui.png)
 
-## 1. 安裝與執行步驟
+這是一款專為 Cocos Creator 3.x 打造的場景資源健康度掃描工具，旨在幫助開發者快速識別場景中的效能隱患，並提供直觀的數據反饋。
 
-1. 將本插件目錄放置於 Cocos Creator 專案的 `extensions` 目錄下。
-2. 在插件目錄內執行終端機指令：
-   ```bash
-   npm install
-   npm run build
-   ```
-3. 打開 Cocos Creator 專案，在頂部選單列找到 `Panel -> 場景資源健康度檢查` 並點擊開啟。
-4. 開啟後，點擊面板中的「重新掃描 (Rescan)」按鈕即可獲取當前場景的資源檢查報告。
-5. 點擊報告清單中的任何節點項目，編輯器將自動在「層級管理器 (Hierarchy)」中選中對應的節點。
+## 1. 安裝與執行
+1.  **安裝依賴**：於插件根目錄執行 `npm install`。
+2.  **編譯插件**：執行 `npm run build` (將 `source` 中的 TypeScript 編譯至 `dist`)。
+3.  **載入外掛**：在 Cocos Creator 「外掛管理」中載入本目錄。
+4.  **執行路徑**：`主選單 -> Tools-dev -> Scene Health Check`。
 
-## 2. 設計決策
+## 2. 技術架構與設計決策
+*   **跨進程通訊架構 (Cross-Process Architecture)**：
+    由於 Cocos Creator 3.x 的環境隔離機制，本工具採用 **Panel-Scene 隔離模式**。介面邏輯 (Vue 3) 運行於 Panel 進程，而場景掃描邏輯則運行於 Scene 進程。我們透過 `Editor.Message` 建立通訊橋樑，實作「介面請求 -> 場景掃描 -> 數據回傳」的異步流，確保 UI 操作不干擾引擎渲染效能。
+    
+*   **關鍵 API 應用**：
+    *   **進程通訊**：使用 `Editor.Message.request('scene', 'execute-scene-script', ...)`。
+    *   **環境操作**：透過 `cc.director.getScene()` 存取運行時場景樹。
+    *   **數據檢索**：運用 `getComponentsInChildren('cc.Node')` 進行深度優先遍歷 (DFS)。
+    *   **資源追蹤**：存取 `sprite.spriteFrame.texture.uuid` 與材質對象進行合批分析。
+    *   **編輯器交互**：利用 `Editor.Selection.clear` 與 `select` 實作報告項目與場景節點的精確選取跳轉。
 
-### 為什麼使用 Scene Script 架構？
-在 Cocos Creator 3.x 插件系統中，Panel 進程與 Scene 執行進程是隔離的。為了準確獲取場景中節點的運作時狀態（如 `node.scale`、`Label.useSystemFont` 以及已加載貼圖的實際尺寸），最可靠的方式是透過 **Scene Script**。
-*   **優點**：可以直接呼叫 `cc` 引擎 API (如 `cc.director.getScene()`)，獲取最精確的數據。
-*   **替代方案考慮**：曾考慮直接解析 `.scene` 的 JSON 檔案，但這樣難以獲取如預設值補全後的數值，且無法獲取貼圖資源的實際渲染尺寸，因此最終選擇 Scene Script 方案。
+*   **渲染預估 (Draw Call Simulation)**：
+    不採用簡易的元件計數，而是實作一套「渲染模擬器」。透過追蹤 DFS 序列中連續節點的 **Material UUID** 與 **Texture UUID**，動態判定合批 (Batching) 可能性，提供更貼近真實 Profiler 的 Draw Call 預估值（參考：[論壇討論](https://forum.cocos.org/t/topic/132490)）。
 
-### UI 架構
-使用了 **Vue 3** 作為 UI 框架，配合 Cocos Creator 內建的 `ui-button` 等元件，確保外觀風格與編輯器一致。
+*   **穩定的 UI 呈現**：
+    採用 **Inline SVG** 方案。這避免了在外掛 Shadow DOM 隔離環境下 WebFont 路徑解析失效的問題，保證了跨環境的視覺一致性。
 
-## 3. 已知限制或不完美之處
-*   **Draw Call 估算**：目前的估算邏輯是統計 active 的渲染元件數量。這是一個粗略的上限估計，實際渲染時可能會因為合圖 (Auto-batching) 而大幅降低。
-*   **深度掃描**：目前的掃描僅限於節點上的元件屬性，尚未遍歷檢查 Material 內部使用的所有貼圖。
-*   **多場景支援**：目前僅支持掃描當前編輯器正在打開的場景。
+## 3. 已知限制
+*   **3D 合批判定**：目前對 3D GPU Instancing 的合批判定採保守估計。
+*   **動態性限制**：目前僅支援對當前活躍 (Active) 且已開啟的場景進行檢查。
 
-## 4. 未來改善方向
-*   **支援一鍵修復**：例如將所有 Scale 回歸 (1, 1, 1) 或一鍵關閉 Label 的系統字型選型。
-*   **資產預覽**：在面板中直接顯示超規格貼圖的縮圖。
-*   **報告導出**：將掃描結果導出為 JSON 或 Excel 報表供團隊追蹤。
+## 4. 未來改善計畫 (Roadmap)
+1.  **非開啟式批量檢查**：預計整合 `AssetDB` 掃描，實作在不手動開啟檔案的情況下，對全專案的 `.scene` 與 `.prefab` 進行自動化批次健康檢查。
+2.  **深度合批檢查**：優化 `cc.Label` (BMFont) 與 3D 渲染順序的合批判定算法，提供更精準的渲染批次分析。
+3.  **一鍵規範化 (Auto-Fix)**：自動修正不合規範的 Scale 誤差、空 Sprite 佔位與系統字體設定。
 
-## 5. AI 使用說明
-*   **主導設計**：插件的整體架構（Vue + Scene Script）、掃描邏輯的遍歷規則、以及與編輯器選中機制的整合由本人設計。
-*   **AI 協助部分**：
-    *   協助產生基礎的 Vue 模板代碼與 CSS 樣式修飾。
-    *   提供部分 Cocos Creator 3.x Message API 的參數參考（例如 `Editor.Selection.select`）。
-    *   協助編寫腳本中的 Node 路徑遞歸算法。
-*   **理解與修改**：本人已逐行閱讀並驗證所有 AI 產生的代碼，並針對 Cocos Creator 3.8 的 API 變更進行了修正（如處理 `Renderable2D` 基類以獲取渲染組件）。
+## 5. AI 協作說明 (AI Disclosure)
+*   **自主設計部分**：定義場景檢查的核心邏輯、場景節點過濾準則、合批判定狀態機、跨進程通訊架構。
+*   **AI 協助優化部分**：輔助實現 TypeScript, HTML 組件化與 Inline SVG、解決 Shadow DOM 下的樣式注入解決方案 (`getRootNode`)。
+*   **技術理解與修正**：AI 產生的腳本皆經過手動重構與修正，特別是針對 Cocos 3.x 引擎環境下的 `cc` 命名空間導入穩定性。

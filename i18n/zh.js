@@ -1,1 +1,0 @@
-"use strict";module.exports={open_panel:"Scene Health Check",send_to_panel:"向 Scene Health Check 发送消息",description:"场景资源健康度检查工具"};

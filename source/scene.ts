@@ -24,13 +24,10 @@ export const methods = {
             drawCallEstimate: 0,
         };
 
-        // 獲取所有節點
+        // 獲取所有節點 (遵循渲染順序：深度優先遍歷)
         let allNodes: any[] = [];
         try {
-            // 優先使用引擎內建方法獲取所有節點
             allNodes = scene.getComponentsInChildren('cc.Node');
-            
-            // 如果數量為 0，嘗試手動遍歷 (應對某些編輯器環境)
             if (allNodes.length === 0 && scene.children) {
                 const walk = (node: any) => {
                     allNodes.push(node);
@@ -48,18 +45,25 @@ export const methods = {
             return report;
         }
 
-        let activeRenderables = 0;
+        let drawCallCount = 0;
+        let lastBatchState = {
+            textureUuid: '',
+            materialUuid: '',
+            type: '' // '2d' or '3d'
+        };
 
         for (const node of allNodes) {
             const path = this.getNodePath(node);
             const uuid = node.uuid;
 
-            // 跳過編輯器系統節點 (例如 Editor Scene Foreground / Background)
+            // 跳過編輯器系統節點
             if (path.includes('Editor Scene Foreground') || path.includes('Editor Scene Background')) {
                 continue;
             }
 
-            // 1. 檢查異常 Scale (精度提升)
+            // --- 資源檢查邏輯 ---
+
+            // 1. 檢查異常 Scale
             const scale = node.scale;
             if (Math.abs(scale.x - 1) > 0.0001 || Math.abs(scale.y - 1) > 0.0001 || Math.abs(scale.z - 1) > 0.0001) {
                 report.abnormalScales.push({
@@ -70,8 +74,12 @@ export const methods = {
                 });
             }
 
-            // 2 & 3. 檢查 Sprite 組件
             const sprite = node.getComponent('cc.Sprite');
+            const label = node.getComponent('cc.Label');
+            const meshRenderer = node.getComponent('cc.MeshRenderer');
+            const renderable2D = node.getComponent('cc.Renderable2D');
+
+            // 2 & 3. 檢查 Sprite
             if (sprite) {
                 if (sprite.spriteFrame) {
                     const tex = sprite.spriteFrame.texture;
@@ -92,29 +100,67 @@ export const methods = {
                 }
             }
 
-            // 4. 檢查 Label 組件 (系統字型)
-            const label = node.getComponent('cc.Label');
-            if (label) {
-                if (label.useSystemFont) {
-                    report.systemFontLabels.push({
-                        uuid,
-                        name: node.name,
-                        path
-                    });
-                }
+            // 4. 檢查 Label
+            if (label && label.useSystemFont) {
+                report.systemFontLabels.push({
+                    uuid,
+                    name: node.name,
+                    path
+                });
             }
 
-            // 5. Draw Call 預估 (統計 Active 且帶有渲染組件的節點)
+            // --- Draw Call 預估邏輯 (模擬合批) ---
+            
             if (node.activeInHierarchy) {
-                const renderable = node.getComponent('cc.Renderable2D') || node.getComponent('cc.MeshRenderer');
-                if (renderable) {
-                    activeRenderables++;
+                let currentTextureUuid = '';
+                let currentMaterialUuid = '';
+                let currentType = '';
+
+                if (renderable2D) {
+                    currentType = '2d';
+                    const mat = renderable2D.getMaterial(0);
+                    currentMaterialUuid = mat ? mat.uuid : 'default-2d-mat';
+                    
+                    if (sprite && sprite.spriteFrame && sprite.spriteFrame.texture) {
+                        currentTextureUuid = sprite.spriteFrame.texture.uuid;
+                    } else if (label) {
+                        // Label 通常會打斷合批，除非是 BMFont 且在同一圖集
+                        // 這裡簡化處理：每個使用系統字體或不同字體的 Label 視為獨立貼圖
+                        currentTextureUuid = `label-${uuid}`; 
+                    }
+                } else if (meshRenderer) {
+                    currentType = '3d';
+                    const mat = meshRenderer.getMaterial(0);
+                    currentMaterialUuid = mat ? mat.uuid : 'default-3d-mat';
+                    // 3D 節點除非開啟 GPU Instancing，否則通常每個都是獨立 Draw Call
+                    currentTextureUuid = `mesh-${uuid}`;
+                }
+
+                if (currentType) {
+                    // 判斷是否可以與上一個節點合批
+                    const canBatch = (
+                        currentType === '2d' && 
+                        lastBatchState.type === '2d' &&
+                        currentMaterialUuid === lastBatchState.materialUuid &&
+                        currentTextureUuid === lastBatchState.textureUuid &&
+                        currentTextureUuid !== '' &&
+                        !currentTextureUuid.startsWith('label-') // 簡單化：Label 不合批
+                    );
+
+                    if (!canBatch) {
+                        drawCallCount++;
+                        lastBatchState = {
+                            textureUuid: currentTextureUuid,
+                            materialUuid: currentMaterialUuid,
+                            type: currentType
+                        };
+                    }
                 }
             }
         }
 
-        report.drawCallEstimate = activeRenderables;
-        console.log(`[HealthCheck] Scan completed: ${allNodes.length} nodes checked.`);
+        report.drawCallEstimate = drawCallCount;
+        console.log(`[HealthCheck] Scan completed: ${allNodes.length} nodes, Estimated DrawCalls: ${drawCallCount}`);
         return report;
     },
 
@@ -124,7 +170,6 @@ export const methods = {
     getNodePath(node: any): string {
         let path = node.name;
         let parent = node.parent;
-        // 遍歷直到根節點 (Scene 的 parent 通常是 null)
         while (parent && parent.parent) {
             path = parent.name + '/' + path;
             parent = parent.parent;

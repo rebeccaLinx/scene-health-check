@@ -1,1 +1,0 @@
-"use strict";module.exports={open_panel:"Scene Health Check",send_to_panel:"Send message to Scene Health Check",description:"Scene resource health check tool."};
