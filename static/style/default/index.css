@@ -1,0 +1,97 @@
+.health-check-container {
+    padding: 20px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #444;
+}
+
+.draw-call-info {
+    font-size: 14px;
+    color: #ccc;
+}
+
+.content {
+    flex: 1;
+    overflow-y: auto;
+    margin-top: 15px;
+}
+
+section {
+    margin-bottom: 15px;
+}
+
+h3.collapsible {
+    font-size: 14px;
+    color: #e0e0e0;
+    margin-bottom: 5px;
+    border-left: 4px solid #f0ad4e;
+    padding: 8px 10px;
+    background: #3a3a3a;
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+}
+
+h3.collapsible:hover {
+    background: #4a4a4a;
+}
+
+.arrow {
+    display: inline-block;
+    width: 20px;
+    font-size: 10px;
+    color: #aaa;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 5px 0 0 10px;
+}
+
+li {
+    padding: 6px 12px;
+    background: #2a2a2a;
+    margin-bottom: 2px;
+    border-radius: 2px;
+    display: flex;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: background 0.1s;
+    font-size: 13px;
+}
+
+li:hover {
+    background: #3d3d3d;
+}
+
+.node-path {
+    color: #8ab4f8;
+    text-decoration: underline;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 80%;
+}
+
+.issue-value {
+    color: #f28b82;
+    font-weight: bold;
+}
+
+.clean-message {
+    text-align: center;
+    padding: 40px;
+    font-size: 18px;
+    color: #81c995;
+}
