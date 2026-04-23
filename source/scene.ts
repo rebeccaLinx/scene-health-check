@@ -54,6 +54,11 @@ export const methods = {
             const path = this.getNodePath(node);
             const uuid = node.uuid;
 
+            // 跳過編輯器系統節點 (例如 Editor Scene Foreground / Background)
+            if (path.includes('Editor Scene Foreground') || path.includes('Editor Scene Background')) {
+                continue;
+            }
+
             // 1. 檢查異常 Scale (精度提升)
             const scale = node.scale;
             if (Math.abs(scale.x - 1) > 0.0001 || Math.abs(scale.y - 1) > 0.0001 || Math.abs(scale.z - 1) > 0.0001) {

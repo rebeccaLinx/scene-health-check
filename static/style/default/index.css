@@ -1,3 +1,5 @@
+/* FontAwesome 將在 JS 中手動注入以修正字體路徑 */
+
 .health-check-container {
     padding: 20px;
     height: 100%;
@@ -13,9 +15,18 @@
     border-bottom: 1px solid #444;
 }
 
+/* 圖標間距與顏色 */
+.header i {
+    margin-right: 5px;
+}
+
 .draw-call-info {
     font-size: 14px;
     color: #ccc;
+}
+
+.draw-call-info strong {
+    color: #81c995;
 }
 
 .content {
@@ -39,17 +50,23 @@ h3.collapsible {
     user-select: none;
     display: flex;
     align-items: center;
+    gap: 8px; /* 增加間距供圖標使用 */
 }
 
 h3.collapsible:hover {
     background: #4a4a4a;
 }
 
-.arrow {
-    display: inline-block;
-    width: 20px;
-    font-size: 10px;
+.arrow-icon {
+    width: 14px;
+    text-align: center;
     color: #aaa;
+    transition: transform 0.2s;
+}
+
+.status-icon {
+    font-size: 14px;
+    color: #f0ad4e;
 }
 
 ul {
@@ -65,6 +82,7 @@ li {
     border-radius: 2px;
     display: flex;
     justify-content: space-between;
+    align-items: center;
     cursor: pointer;
     transition: background 0.1s;
     font-size: 13px;
@@ -94,4 +112,12 @@ li:hover {
     padding: 40px;
     font-size: 18px;
     color: #81c995;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.clean-message i {
+    font-size: 48px;
 }

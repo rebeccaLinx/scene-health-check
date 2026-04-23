@@ -1,15 +1,19 @@
 <div class="health-check-container">
     <div class="header">
-        <ui-button class="blue" @click="scan">重新掃描 (Rescan)</ui-button>
-        <span class="draw-call-info" v-if="report">預估 Draw Call: <strong>{{report.drawCallEstimate || 0}}</strong></span>
+        <ui-button class="blue" @click="scan">
+            重新掃描 (Rescan)
+        </ui-button>
+        <span class="draw-call-info" v-if="report">
+            預估 Draw Call: <strong>{{report.drawCallEstimate || 0}}</strong>
+        </span>
     </div>
 
     <div class="content" v-if="report">
         <!-- 1. 超規格貼圖 -->
         <section v-if="report.oversizedTextures && report.oversizedTextures.length > 0">
             <h3 @click="expanded.oversizedTextures = !expanded.oversizedTextures" class="collapsible">
-                <span class="arrow">{{ expanded.oversizedTextures ? '▼' : '▶' }}</span>
-                ⚠️ 超規格貼圖 (> 2048x2048) ({{report.oversizedTextures.length}})
+                <fa-icon :name="expanded.oversizedTextures ? 'chevron-down' : 'chevron-right'" class="arrow-icon"></fa-icon>
+                超規格貼圖 (> 2048x2048) ({{report.oversizedTextures.length}})
             </h3>
             <ul v-show="expanded.oversizedTextures">
                 <li v-for="item in report.oversizedTextures" :key="item.uuid" @click="selectNode(item.uuid)">
@@ -22,8 +26,8 @@
         <!-- 2. 異常 Scale -->
         <section v-if="report.abnormalScales && report.abnormalScales.length > 0">
             <h3 @click="expanded.abnormalScales = !expanded.abnormalScales" class="collapsible">
-                <span class="arrow">{{ expanded.abnormalScales ? '▼' : '▶' }}</span>
-                ⚠️ 異常 Scale (≠ 1, 1, 1) ({{report.abnormalScales.length}})
+                <fa-icon :name="expanded.abnormalScales ? 'chevron-down' : 'chevron-right'" class="arrow-icon"></fa-icon>
+                異常 Scale (≠ 1, 1, 1) ({{report.abnormalScales.length}})
             </h3>
             <ul v-show="expanded.abnormalScales">
                 <li v-for="item in report.abnormalScales" :key="item.uuid" @click="selectNode(item.uuid)">
@@ -36,8 +40,8 @@
         <!-- 3. 空 SpriteFrame -->
         <section v-if="report.emptySpriteFrames && report.emptySpriteFrames.length > 0">
             <h3 @click="expanded.emptySpriteFrames = !expanded.emptySpriteFrames" class="collapsible">
-                <span class="arrow">{{ expanded.emptySpriteFrames ? '▼' : '▶' }}</span>
-                ⚠️ 空 SpriteFrame ({{report.emptySpriteFrames.length}})
+                <fa-icon :name="expanded.emptySpriteFrames ? 'chevron-down' : 'chevron-right'" class="arrow-icon"></fa-icon>
+                空 SpriteFrame ({{report.emptySpriteFrames.length}})
             </h3>
             <ul v-show="expanded.emptySpriteFrames">
                 <li v-for="item in report.emptySpriteFrames" :key="item.uuid" @click="selectNode(item.uuid)">
@@ -49,8 +53,8 @@
         <!-- 4. 系統字型 Label -->
         <section v-if="report.systemFontLabels && report.systemFontLabels.length > 0">
             <h3 @click="expanded.systemFontLabels = !expanded.systemFontLabels" class="collapsible">
-                <span class="arrow">{{ expanded.systemFontLabels ? '▼' : '▶' }}</span>
-                ⚠️ 使用系統字型 (System Font) ({{report.systemFontLabels.length}})
+                <fa-icon :name="expanded.systemFontLabels ? 'chevron-down' : 'chevron-right'" class="arrow-icon"></fa-icon>
+                使用系統字型 (System Font) ({{report.systemFontLabels.length}})
             </h3>
             <ul v-show="expanded.systemFontLabels">
                 <li v-for="item in report.systemFontLabels" :key="item.uuid" @click="selectNode(item.uuid)">
@@ -60,7 +64,7 @@
         </section>
 
         <div v-if="isClean" class="clean-message">
-            ✅ 未發現顯性資源問題，場景健康！
+            <span>未發現顯性資源問題，場景健康！</span>
         </div>
     </div>
 </div>

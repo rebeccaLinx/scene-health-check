@@ -23,7 +23,7 @@
     },
     "panels": {
         "default": {
-            "title": "場景資源健康度檢查",
+            "title": "Scene Health Check",
             "type": "dockable",
             "main": "dist/panels/default",
             "size": {
@@ -40,14 +40,9 @@
         },
         "menu": [
             {
-                "path": "i18n:menu.panel/scene-health-check",
+                "path": "Tools-dev",
                 "label": "i18n:scene-health-check.open_panel",
                 "message": "open-panel"
-            },
-            {
-                "path": "i18n:menu.develop/scene-health-check",
-                "label": "i18n:scene-health-check.send_to_panel",
-                "message": "send-to-panel"
             }
         ],
         "messages": {
