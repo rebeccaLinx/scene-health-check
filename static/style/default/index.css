@@ -9,10 +9,46 @@
 
 .header {
     display: flex;
-    align-items: center;
-    gap: 20px;
+    flex-direction: column; /* 改為垂直排列以容納路徑 */
+    gap: 10px;
     padding-bottom: 15px;
     border-bottom: 1px solid #444;
+}
+
+.header-main {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.header-path {
+    font-size: 11px;
+    color: #888;
+    background: #222;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.path-text {
+    color: #8ab4f8;
+    text-decoration: underline;
+    cursor: pointer;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 80%;
+}
+
+.open-folder-icon {
+    cursor: pointer;
+    color: #ccc;
+}
+
+.open-folder-icon:hover {
+    color: #fff;
 }
 
 /* 圖標間距與顏色 */

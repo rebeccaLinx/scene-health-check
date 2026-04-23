@@ -1,11 +1,21 @@
 <div class="health-check-container">
     <div class="header">
-        <ui-button class="blue" @click="scan">
-            重新掃描 (Rescan)
-        </ui-button>
-        <span class="draw-call-info" v-if="report">
-            預估 Draw Call: <strong>{{report.drawCallEstimate || 0}}</strong>
-        </span>
+        <div class="header-main">
+            <ui-button class="blue" @click="scan">
+                重新掃描 (Rescan)
+            </ui-button>
+            <ui-button @click="exportReport" v-if="report">
+                導出報告 (Export)
+            </ui-button>
+            <span class="draw-call-info" v-if="report">
+                預估 Draw Call: <strong>{{report.drawCallEstimate || 0}}</strong>
+            </span>
+        </div>
+        <div class="header-path" v-if="lastExportPath">
+            <span class="path-label">最後導出位置:</span>
+            <span class="path-text" @click="openExportDir">{{lastExportPath}}</span>
+            <fa-icon name="magnifying-glass" class="open-folder-icon" @click="openExportDir"></fa-icon>
+        </div>
     </div>
 
     <div class="content" v-if="report">

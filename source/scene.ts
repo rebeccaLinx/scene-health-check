@@ -17,6 +17,7 @@ export const methods = {
         }
 
         const report = {
+            sceneName: scene.name || 'Untitled',
             oversizedTextures: [] as any[],
             abnormalScales: [] as any[],
             emptySpriteFrames: [] as any[],
