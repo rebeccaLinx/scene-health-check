@@ -2,7 +2,7 @@
 
 Cocos Creator 3.x 的場景資源健康度掃描工具，幫助開發者快速識別場景中的效能隱患，並提供直觀的數據反饋。
 
-![UI Preview](./ui.png)
+![UI Preview](./ui2.png)
 
 ## 1. 安裝與執行
 1.  **安裝依賴**：於插件根目錄執行 `npm install`。
